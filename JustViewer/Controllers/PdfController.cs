@@ -21,13 +21,24 @@ public class PdfController : Controller
     [HttpGet("Pdf/Stream/{fileName}")]
     public IActionResult Stream(string fileName)
     {
-        var filePath = Path.Combine(_env.WebRootPath, "pdf", fileName);
-        if (!System.IO.File.Exists(filePath))
+        try
         {
-            return NotFound();
-        }
+            // Sanitize filename to prevent directory traversal
+            fileName = Path.GetFileName(fileName);
 
-        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return File(stream, "application/pdf", enableRangeProcessing: true);
+            var filePath = Path.Combine(_env.WebRootPath, "pdf", fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound($"File not found: {fileName}");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/pdf");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error loading PDF: {ex.Message}");
+        }
     }
 }
