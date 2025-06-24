@@ -11,7 +11,7 @@ JustViewer is a minimal ASP.NET Core MVC application demonstrating how to stream
 
 1. **Fetch PDF.js** (first time only)
 
-   Run the helper script to download the PDF.js distribution into `wwwroot/js/pdfjs/`:
+   Run the helper script to download the PDF.js distribution (including `viewer.html` and associated scripts) into `wwwroot/js/pdfjs/`:
 
    ```bash
    ./scripts/fetch_pdfjs.sh
