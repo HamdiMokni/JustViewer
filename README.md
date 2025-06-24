@@ -1,6 +1,7 @@
 # JustViewer
 
-JustViewer is a minimal ASP.NET Core MVC application demonstrating how to stream and view large PDF files efficiently.
+JustViewer is a minimal ASP.NET Core MVC application demonstrating how to stream and view large PDF files efficiently.  
+The PDF viewer page now uses external CSS/JS files for a cleaner layout and loads the bundled `viewer.html` from PDF.js.
 
 ## Requirements
 

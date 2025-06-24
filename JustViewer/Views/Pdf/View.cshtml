@@ -3,46 +3,6 @@
     var fileName = ViewData["FileName"] as string ?? "";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<style>
-    body {
-        background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    }
-    .viewer-wrapper {
-        max-width: 1200px;
-        margin: 2rem auto;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        overflow: hidden;
-    }
-    .viewer-header {
-        display:flex;
-        justify-content: space-between;
-        align-items:center;
-        padding:1rem 1.5rem;
-        background:#2c3e50;
-        color:#fff;
-    }
-    .viewer-actions a,
-    .viewer-actions button {
-        margin-left:0.5rem;
-    }
-    .toolbar {
-        background:#f8f9fa;
-        padding:0.5rem 1rem;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-    }
-    .toolbar button {
-        margin-right:0.25rem;
-    }
-    .pdf-frame {
-        width:100%;
-        height:80vh;
-        border:none;
-    }
-</style>
 <div class="viewer-wrapper">
     <div class="viewer-header">
         <div>
@@ -67,38 +27,13 @@
         </div>
     </div>
     <iframe id="pdfFrame"
-            src="/Pdf/Stream/@fileName"
+            src="/js/pdfjs/viewer.html?file=/Pdf/Stream/@fileName"
             width="100%"
             height="100%"
-            style="border:none;">
+            class="pdf-frame">
     </iframe>
 </div>
 
 @section Scripts {
-<script>
-    const frame = document.getElementById('pdfFrame');
-    function withViewer(fn) {
-        if (!frame.contentWindow || !frame.contentWindow.PDFViewerApplication) return;
-        return fn(frame.contentWindow.PDFViewerApplication);
-    }
-    function updateStatus(app) {
-        document.getElementById('zoomDisplay').textContent = Math.round(app.pdfViewer.currentScale * 100) + '%';
-        document.getElementById('pageDisplay').textContent = `Page ${app.page} of ${app.pagesCount}`;
-    }
-    frame.addEventListener('load', () => {
-        const app = frame.contentWindow.PDFViewerApplication;
-        if (app.initialized) updateStatus(app);
-        else frame.contentWindow.addEventListener('webviewerloaded', () => updateStatus(frame.contentWindow.PDFViewerApplication));
-    });
-    function zoomIn(){ withViewer(app => { app.zoomIn(); updateStatus(app); }); }
-    function zoomOut(){ withViewer(app => { app.zoomOut(); updateStatus(app); }); }
-    function nextPage(){ withViewer(app => { app.page = Math.min(app.page + 1, app.pagesCount); updateStatus(app); }); }
-    function prevPage(){ withViewer(app => { app.page = Math.max(app.page - 1, 1); updateStatus(app); }); }
-    function printPDF(){ withViewer(app => app.print()); }
-    function toggleFullscreen(){
-        const el = document.documentElement;
-        if(!document.fullscreenElement) el.requestFullscreen();
-        else document.exitFullscreen();
-    }
-</script>
+    <script src="~/js/pdf-viewer.js" asp-append-version="true"></script>
 }
