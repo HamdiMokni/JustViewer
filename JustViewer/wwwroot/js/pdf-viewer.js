@@ -1,24 +1,54 @@
-const frame = document.getElementById('pdfFrame');
-function withViewer(fn) {
-    if (!frame.contentWindow || !frame.contentWindow.PDFViewerApplication) return;
-    return fn(frame.contentWindow.PDFViewerApplication);
+class PDFViewer {
+    constructor(fileName) {
+        this.fileName = fileName;
+        this.frame = document.getElementById('pdfFrame');
+        this.loading = document.getElementById('loading');
+        this.error = document.getElementById('error');
+
+        this.init();
+    }
+
+    init() {
+        console.log('Initializing PDF viewer for:', this.fileName);
+        this.initializePdfViewer();
+    }
+
+    initializePdfViewer() {
+        const pdfUrl = `/Pdf/Stream/${encodeURIComponent(this.fileName)}`;
+
+        // Local PDF.js viewer path (downloaded from https://github.com/mozilla/pdf.js)
+        const viewerUrl = `/js/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`;
+
+        console.log('Loading PDF:', pdfUrl);
+        console.log('Viewer URL:', viewerUrl);
+
+        this.frame.onload = () => {
+            this.loading.style.display = 'none';
+            this.frame.style.display = 'block';
+        };
+
+        this.frame.onerror = () => {
+            this.loading.style.display = 'none';
+            this.error.style.display = 'block';
+        };
+
+        this.frame.src = viewerUrl;
+    }
 }
-function updateStatus(app) {
-    document.getElementById('zoomDisplay').textContent = Math.round(app.pdfViewer.currentScale * 100) + '%';
-    document.getElementById('pageDisplay').textContent = `Page ${app.page} of ${app.pagesCount}`;
+
+// Retry logic (for button click)
+function retryLoading() {
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('pdfFrame').src = ''; // Reset iframe
+    setTimeout(() => {
+        new PDFViewer(window.pdfFileName);
+    }, 100); // slight delay
 }
-frame.addEventListener('load', () => {
-    const app = frame.contentWindow.PDFViewerApplication;
-    if (app.initialized) updateStatus(app);
-    else frame.contentWindow.addEventListener('webviewerloaded', () => updateStatus(frame.contentWindow.PDFViewerApplication));
+
+// Start viewer on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.pdfFileName) {
+        new PDFViewer(window.pdfFileName);
+    }
 });
-function zoomIn(){ withViewer(app => { app.zoomIn(); updateStatus(app); }); }
-function zoomOut(){ withViewer(app => { app.zoomOut(); updateStatus(app); }); }
-function nextPage(){ withViewer(app => { app.page = Math.min(app.page + 1, app.pagesCount); updateStatus(app); }); }
-function prevPage(){ withViewer(app => { app.page = Math.max(app.page - 1, 1); updateStatus(app); }); }
-function printPDF(){ withViewer(app => app.print()); }
-function toggleFullscreen(){
-    const el = document.documentElement;
-    if(!document.fullscreenElement) el.requestFullscreen();
-    else document.exitFullscreen();
-}
